@@ -9,6 +9,8 @@
 # - we use ubuntu instead of debian because the travis chroot is ubuntu based
 # - ./debian/rules build-arch will build the package and run the tests
 language: c
+sudo: required
+dist: trusty
 before_install:
  - sudo apt-get update -q
  - sudo apt-get install distro-info
