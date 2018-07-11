@@ -83,7 +83,6 @@ http://mirrors.shu.edu.cn/debian/
 http://mirrors.tuna.tsinghua.edu.cn/debian/
 http://mirrors.ustc.edu.cn/debian/
 #LOC:CR
-http://mirrordebian.una.ac.cr/debian/
 http://mirrors.ucr.ac.cr/debian/
 #LOC:CZ
 http://debian.ignum.cz/debian/
@@ -224,6 +223,7 @@ http://ftp.hu.debian.org/debian/
 http://ftp.kfki.hu/linux/debian/
 #LOC:ID
 http://kartolo.sby.datautama.net.id/debian/
+http://kebo.pens.ac.id/debian/
 http://mirror.poliwangi.ac.id/debian/
 #LOC:IE
 http://debian.heanet.ie/debian/
@@ -282,6 +282,7 @@ http://mirror.litnet.lt/debian/
 http://debian.mirror.root.lu/debian/
 #LOC:LV
 http://debian.koyanet.lv/debian/
+http://debian.linux.edu.lv/debian/
 #LOC:MD
 http://ftp.md.debian.org/debian/
 http://mirror.as43289.net/debian/
@@ -295,7 +296,6 @@ http://mmc.geofisica.unam.mx/debian/
 http://debian.nautile.nc/debian/
 http://ftp.nc.debian.org/debian/
 #LOC:NL
-http://ams.edge.kernel.org/debian/
 http://debian.mirror.cambrium.nl/debian/
 http://debian.snt.utwente.nl/debian/
 http://debmirror.tuxis.nl/debian/
@@ -412,7 +412,6 @@ http://debian.mirrors.pair.com/debian/
 http://debian.osuosl.org/debian/
 http://debian.securedservers.com/debian/
 http://debian.uchicago.edu/debian/
-http://ewr.edge.kernel.org/debian/
 http://ftp.us.debian.org/debian/
 http://ftp.utexas.edu/debian/
 http://mirror.cc.columbia.edu/debian/
@@ -440,7 +439,6 @@ http://mirrors.syringanetworks.net/debian/
 http://mirrors.wikimedia.org/debian/
 http://mirrors.xmission.com/debian/
 http://pubmirrors.dal.corespace.com/debian/
-http://sjc.edge.kernel.org/debian/
 http://www.gtlib.gatech.edu/debian/
 #LOC:UY
 http://repo.cure.edu.uy/debian/
