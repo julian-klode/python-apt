@@ -260,23 +260,19 @@ class Cache(object):
     def __getitem__(self, key):
         # type: (object) -> Package
         """ look like a dictionary (get key) """
-        key = str(key)
         try:
-            return self._weakref[key]
+            key = str(key)
+            rawpkg = self._cache[key]
         except KeyError:
-            try:
-                rawpkg = self._cache[key]
-            except KeyError:
-                raise KeyError('The cache has no package named %r' % key)
+            raise KeyError('The cache has no package named %r' % key)
 
-            # It might be excluded due to not having a version or something
-            if not self.__is_real_pkg(rawpkg):
-                raise KeyError('The cache has no package named %r' % key)
+        # It might be excluded due to not having a version or something
+        if not self.__is_real_pkg(rawpkg):
+            raise KeyError('The cache has no package named %r' % key)
 
-            pkg = self._rawpkg_to_pkg(rawpkg)
-            self._weakref[key] = pkg
+        pkg = self._rawpkg_to_pkg(rawpkg)
 
-            return pkg
+        return pkg
 
     def get(self, key, default=None):
         # type: (object, object) -> Any
@@ -295,13 +291,9 @@ class Cache(object):
 
         .. versionadded:: 1.0.0
         """
-        fullname = rawpkg.get_fullname(pretty=False)
-        try:
-            pkg = self._weakref[fullname]
-        except KeyError:
-            pkg = Package(self, rawpkg)
-            self._weakref[fullname] = pkg
-        return pkg
+        fullname = rawpkg.get_fullname(pretty=True)
+
+        return self._weakref.setdefault(fullname, Package(self, rawpkg))
 
     def __iter__(self):
         # type: () -> Iterator[Package]
@@ -311,7 +303,8 @@ class Cache(object):
         # is disastrous if we use compressed package indexes, and slower than
         # necessary for uncompressed indexes.
         for pkgname in self.keys():
-            yield self[pkgname]
+            pkg = Package(self, self._cache[pkgname])
+            yield self._weakref.setdefault(pkgname, pkg)
 
     def __is_real_pkg(self, rawpkg):
         # type: (apt_pkg.Package) -> bool
@@ -593,11 +586,12 @@ class Cache(object):
                 break
             lock_count += 1
 
-        res = install_progress.run(pm)
-
-        # Reinstate lock count
-        for i in range(lock_count):
-            apt_pkg.pkgsystem_lock()
+        try:
+            res = install_progress.run(pm)
+        finally:
+            # Reinstate lock count
+            for i in range(lock_count):
+                apt_pkg.pkgsystem_lock()
 
         try:
             install_progress.finishUpdate()  # type: ignore
