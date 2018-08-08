@@ -18,17 +18,6 @@ python-apt (1.7.0~alpha2ubuntu1) cosmic; urgency=medium
 
  -- Julian Andres Klode <juliank@ubuntu.com>  Wed, 11 Jul 2018 11:57:31 +0200
 
-python-apt (1.6.2) unstable; urgency=medium
-
-  * Introduce gitlab ci
-  * Document whatsnew in 1.6.y
-  * Add more extensive test cases for cache remapping
-  * Do not override __hash__ in apt.package.Package (LP: #1780099)
-  * debian/python-apt.docs: README is README.md since some time
-  * debian/control: Point to salsa instead of anonscm
-
- -- Julian Andres Klode <jak@debian.org>  Mon, 09 Jul 2018 15:37:51 +0200
-
 python-apt (1.7.0~alpha2) experimental; urgency=medium
 
   * gitlab-ci: Set DEBIAN_FRONTEND=noninteractive
@@ -110,17 +99,6 @@ python-apt (1.7.0~alpha0~ubuntu3) cosmic; urgency=medium
   * utils/get_debian_mirrors.py: Get data from salsa
 
  -- Julian Andres Klode <jak@debian.org>  Wed, 06 Jun 2018 16:09:32 -0700
-
-python-apt (1.6.1) unstable; urgency=medium
-
-  * apt: Fix typing errors to get CI pass again
-  * apt.Cache: Remap objects when reopening cache (LP: #1773316)
-  * apt_pkg.DepCache: Raise CacheMismatchError if argument belongs to diff. cache
-  * Set branch to 1.6.y and adjust travis CI to run against stable releases
-  * travis CI / Dockerfile: Pin mypy to 0.600 to prevent future changes breaking CI
-  * utils/get_debian_mirrors.py: Get data from salsa
-
- -- Julian Andres Klode <jak@debian.org>  Wed, 06 Jun 2018 15:14:59 -0700
 
 python-apt (1.7.0~alpha0~ubuntu2) cosmic; urgency=medium
 
