@@ -1,3 +1,15 @@
+python-apt (1.7.0~alpha2ubuntu3) cosmic; urgency=medium
+
+  * Accept Version objects in apt_pkg.Policy.get_priority(), deprecate Package
+  * Return correct pin in apt.package.Version.policy_priority
+  * typehinting: apt_pkg.PackageFile is not an iterable
+  * Introduce frontend locking
+  * Convert apt.Cache.commit and apt_pkg.DepCache.commit to FE lock
+  * Revert "Revert to 1.6.2"
+  * Revert "Reset to 1.6.2"
+
+ -- Julian Andres Klode <juliank@ubuntu.com>  Wed, 08 Aug 2018 10:52:51 +0200
+
 python-apt (1.7.0~alpha2ubuntu2+really1.6.2ubuntu1) cosmic; urgency=medium
 
   * data/templates/Ubuntu.info.in: Re-Add cosmic cuttlefish template
