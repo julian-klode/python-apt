@@ -25,6 +25,7 @@ import sys
 try:
     import types
     from typing import Callable, Optional, Union
+
     types  # pyflakes
     Callable  # pyflakes
     Optional  # pyflakes
@@ -39,7 +40,7 @@ from apt.progress import base
 io  # pyflakes
 
 
-__all__ = ['AcquireProgress', 'CdromProgress', 'OpProgress']
+__all__ = ["AcquireProgress", "CdromProgress", "OpProgress"]
 
 if sys.version_info.major < 3:
     input = raw_input  # type: ignore
@@ -72,13 +73,13 @@ class TextProgress(object):
 
         # Fill remaining stuff with whitespace
         if self._width > len(msg):
-            self._file.write((self._width - len(msg)) * ' ')
+            self._file.write((self._width - len(msg)) * " ")
         elif maximize:  # Needed for OpProgress.
             self._width = max(self._width, len(msg))
         if newline:
             self._file.write("\n")
         else:
-            #self._file.write("\r")
+            # self._file.write("\r")
             self._file.flush()
 
 
@@ -108,7 +109,7 @@ class OpProgress(base.OpProgress, TextProgress):
         """Called once an operation has been completed."""
         base.OpProgress.done(self)
         if self.old_op:
-            self._write(_("%c%s... Done") % ('\r', self.old_op), True, True)
+            self._write(_("%c%s... Done") % ("\r", self.old_op), True, True)
         self.old_op = ""
 
 
@@ -119,7 +120,9 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
         # type: (io.TextIOBase) -> None
         TextProgress.__init__(self, outfile)
         base.AcquireProgress.__init__(self)
-        self._signal = None  # type: Union[Callable[[signal.Signals, types.FrameType], None], int, signal.Handlers, None] # nopep8
+        self._signal = (
+            None
+        )  # type: Union[Callable[[signal.Signals, types.FrameType], None], int, signal.Handlers, None] # nopep8
         self._width = 80
         self._id = long(1)
 
@@ -143,17 +146,18 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
             import fcntl
             import termios
             import struct
-            buf = fcntl.ioctl(self._file, termios.TIOCGWINSZ, 8 * b' ')
-            dummy, col, dummy, dummy = struct.unpack('hhhh', buf)
+
+            buf = fcntl.ioctl(self._file, termios.TIOCGWINSZ, 8 * b" ")
+            dummy, col, dummy, dummy = struct.unpack("hhhh", buf)
             self._width = col - 1  # 1 for the cursor
 
     def ims_hit(self, item):
         # type: (apt_pkg.AcquireItemDesc) -> None
         """Called when an item is update (e.g. not modified on the server)."""
         base.AcquireProgress.ims_hit(self, item)
-        line = _('Hit ') + item.description
+        line = _("Hit ") + item.description
         if item.owner.filesize:
-            line += ' [%sB]' % apt_pkg.size_to_str(item.owner.filesize)
+            line += " [%sB]" % apt_pkg.size_to_str(item.owner.filesize)
         self._write(line)
 
     def fail(self, item):
@@ -177,7 +181,7 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
         self._id += 1
         line = _("Get:") + "%s %s" % (item.owner.id, item.description)
         if item.owner.filesize:
-            line += (" [%sB]" % apt_pkg.size_to_str(item.owner.filesize))
+            line += " [%sB]" % apt_pkg.size_to_str(item.owner.filesize)
 
         self._write(line)
 
@@ -188,28 +192,29 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
         Return False if the user asked to cancel the whole Acquire process."""
         base.AcquireProgress.pulse(self, owner)
         # only show progress on a tty to not clutter log files etc
-        if (hasattr(self._file, "fileno") and
-                not os.isatty(self._file.fileno())):
+        if hasattr(self._file, "fileno") and not os.isatty(self._file.fileno()):
             return True
 
         # calculate progress
-        percent = (((self.current_bytes + self.current_items) * 100.0) /
-                        float(self.total_bytes + self.total_items))
+        percent = ((self.current_bytes + self.current_items) * 100.0) / float(
+            self.total_bytes + self.total_items
+        )
 
         shown = False
-        tval = '%i%%' % percent
+        tval = "%i%%" % percent
         end = ""
         if self.current_cps:
-            eta = long(float(self.total_bytes - self.current_bytes) /
-                        self.current_cps)
-            end = " %sB/s %s" % (apt_pkg.size_to_str(self.current_cps),
-                                 apt_pkg.time_to_str(eta))
+            eta = long(float(self.total_bytes - self.current_bytes) / self.current_cps)
+            end = " %sB/s %s" % (
+                apt_pkg.size_to_str(self.current_cps),
+                apt_pkg.time_to_str(eta),
+            )
 
         for worker in owner.workers:
-            val = ''
+            val = ""
             if not worker.current_item:
                 if worker.status:
-                    val = ' [%s]' % worker.status
+                    val = " [%s]" % worker.status
                     if len(tval) + len(val) + len(end) >= self._width:
                         break
                     tval += val
@@ -218,22 +223,25 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
             shown = True
 
             if worker.current_item.owner.id:
-                val += " [%i %s" % (worker.current_item.owner.id,
-                                    worker.current_item.shortdesc)
+                val += " [%i %s" % (
+                    worker.current_item.owner.id,
+                    worker.current_item.shortdesc,
+                )
             else:
-                val += ' [%s' % worker.current_item.description
+                val += " [%s" % worker.current_item.description
             if worker.current_item.owner.active_subprocess:
-                val += ' %s' % worker.current_item.owner.active_subprocess
+                val += " %s" % worker.current_item.owner.active_subprocess
 
-            val += ' %sB' % apt_pkg.size_to_str(worker.current_size)
+            val += " %sB" % apt_pkg.size_to_str(worker.current_size)
 
             # Add the total size and percent
             if worker.total_size and not worker.current_item.owner.complete:
                 val += "/%sB %i%%" % (
                     apt_pkg.size_to_str(worker.total_size),
-                    worker.current_size * 100.0 / worker.total_size)
+                    worker.current_size * 100.0 / worker.total_size,
+                )
 
-            val += ']'
+            val += "]"
 
             if len(tval) + len(val) + len(end) >= self._width:
                 # Display as many items as screen width
@@ -245,7 +253,7 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
             tval += _(" [Working]")
 
         if self.current_cps:
-            tval += (self._width - len(end) - len(tval)) * ' ' + end
+            tval += (self._width - len(end) - len(tval)) * " " + end
 
         self._write(tval, False)
         return True
@@ -254,23 +262,35 @@ class AcquireProgress(base.AcquireProgress, TextProgress):
         # type: (str, str) -> bool
         """Prompt the user to change the inserted removable media."""
         base.AcquireProgress.media_change(self, medium, drive)
-        self._write(_("Media change: please insert the disc labeled\n"
-                      " '%s'\n"
-                      "in the drive '%s' and press enter\n") % (medium, drive))
-        return input() not in ('c', 'C')
+        self._write(
+            _(
+                "Media change: please insert the disc labeled\n"
+                " '%s'\n"
+                "in the drive '%s' and press enter\n"
+            )
+            % (medium, drive)
+        )
+        return input() not in ("c", "C")
 
     def stop(self):
         # type: () -> None
         """Invoked when the Acquire process stops running."""
         base.AcquireProgress.stop(self)
         # Trick for getting a translation from apt
-        self._write((_("Fetched %sB in %s (%sB/s)\n") % (
+        self._write(
+            (
+                _("Fetched %sB in %s (%sB/s)\n")
+                % (
                     apt_pkg.size_to_str(self.fetched_bytes),
                     apt_pkg.time_to_str(self.elapsed_time),
-                    apt_pkg.size_to_str(self.current_cps))).rstrip("\n"))
+                    apt_pkg.size_to_str(self.current_cps),
+                )
+            ).rstrip("\n")
+        )
 
         # Delete the signal again.
         import signal
+
         signal.signal(signal.SIGWINCH, self._signal)
 
 
@@ -281,8 +301,10 @@ class CdromProgress(base.CdromProgress, TextProgress):
         # type: () -> Optional[str]
         """Ask the user to provide a name for the disc."""
         base.CdromProgress.ask_cdrom_name(self)
-        self._write(_("Please provide a name for this Disc, such as "
-                      "'Debian 2.1r1 Disk 1'"), False)
+        self._write(
+            _("Please provide a name for this Disc, such as " "'Debian 2.1r1 Disk 1'"),
+            False,
+        )
         try:
             return str(input(":"))
         except KeyboardInterrupt:
@@ -299,9 +321,8 @@ class CdromProgress(base.CdromProgress, TextProgress):
         # type: () -> bool
         """Ask the user to change the CD-ROM."""
         base.CdromProgress.change_cdrom(self)
-        self._write(_("Please insert a Disc in the drive and press enter"),
-                    False)
+        self._write(_("Please insert a Disc in the drive and press enter"), False)
         try:
-            return bool(input() == '')
+            return bool(input() == "")
         except KeyboardInterrupt:
             return False

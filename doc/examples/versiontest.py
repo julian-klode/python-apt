@@ -16,24 +16,38 @@ if len(TestFile) != 1:
 # Go over the file..
 list = open(TestFile[0], "r")
 CurLine = 0
-while(1):
+while 1:
     Line = list.readline()
     CurLine = CurLine + 1
     if Line == "":
         break
     Line = Line.strip()
-    if len(Line) == 0 or Line[0] == '#':
+    if len(Line) == 0 or Line[0] == "#":
         continue
 
     Split = re.split("[ \n]", Line)
 
     # Check forward
     if apt_pkg.version_compare(Split[0], Split[1]) != int(Split[2]):
-        print("Comparision failed on line %u. '%s' ? '%s' %i != %i" % (CurLine,
-            Split[0], Split[1], apt_pkg.version_compare(Split[0], Split[1]),
-            int(Split[2])))
+        print(
+            "Comparision failed on line %u. '%s' ? '%s' %i != %i"
+            % (
+                CurLine,
+                Split[0],
+                Split[1],
+                apt_pkg.version_compare(Split[0], Split[1]),
+                int(Split[2]),
+            )
+        )
     # Check reverse
     if apt_pkg.version_compare(Split[1], Split[0]) != -1 * int(Split[2]):
-        print("Comparision failed on line %u. '%s' ? '%s' %i != %i" % (CurLine,
-            Split[1], Split[0], apt_pkg.version_compare(Split[1], Split[0]),
-            -1 * int(Split[2])))
+        print(
+            "Comparision failed on line %u. '%s' ? '%s' %i != %i"
+            % (
+                CurLine,
+                Split[1],
+                Split[0],
+                apt_pkg.version_compare(Split[1], Split[0]),
+                -1 * int(Split[2]),
+            )
+        )

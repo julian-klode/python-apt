@@ -13,7 +13,6 @@ import testcommon
 
 
 class TestAptPolicy(testcommon.TestCase):
-
     def test_apt_policy_lowlevel(self):
         return  # TODO: Make tests independent of system state
         # get a policy
@@ -27,7 +26,7 @@ class TestAptPolicy(testcommon.TestCase):
         for ver in pkg.versions:
             lowlevel_ver = ver._cand
             for pkgfile, i in lowlevel_ver.file_list:
-                #print pkgfile, i, policy.get_priority(pkgfile)
+                # print pkgfile, i, policy.get_priority(pkgfile)
                 self.assertTrue(policy.get_priority(pkgfile) >= 1)
                 self.assertTrue(policy.get_priority(pkgfile) < 1001)
 
@@ -35,8 +34,9 @@ class TestAptPolicy(testcommon.TestCase):
         return  # TODO: Make tests independent of system state
         cache = apt.Cache()
         pkg = cache["apt"]
-        self.assertTrue(pkg.candidate.policy_priority > 1 and
-                        pkg.candidate.policy_priority < 1001)
+        self.assertTrue(
+            pkg.candidate.policy_priority > 1 and pkg.candidate.policy_priority < 1001
+        )
 
 
 if __name__ == "__main__":

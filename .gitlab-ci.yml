@@ -5,9 +5,10 @@ variables:
 test:
   script:
   - apt update
-  - apt install -q -y python3-pip
+  - apt install -q -y python3-pip black
   - apt build-dep -q -y ./
   - python3 -m pip install -U mypy
+  - black --diff --check .
   - env python3 tests/testmanual_pep8.py
   - env MYPYPATH=$PWD/typehinting/ mypy ./apt
   - dpkg-buildpackage

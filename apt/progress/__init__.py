@@ -27,6 +27,7 @@ from __future__ import print_function
 
 try:
     from typing import Sequence
+
     Sequence  # pylint
 except ImportError:
     pass

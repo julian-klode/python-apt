@@ -62,10 +62,10 @@ for dep in depends["Depends"]:  # FIXME: do we need to consider PreDepends?
         continue
     srcrec = srcrecords.lookup(srcpkg_name)
     if srcrec:
-        #print srcrecords.package
-        #print srcrecords.binaries
+        # print srcrecords.package
+        # print srcrecords.binaries
         bd = srcrecords.build_depends
-        #print "%s: %s " % (srcpkg_name, bd)
+        # print "%s: %s " % (srcpkg_name, bd)
         for b in bd:
             all_build_depends.add(b[0])
 

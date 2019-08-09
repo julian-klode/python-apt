@@ -28,6 +28,7 @@ import re
 import socket
 import subprocess
 import threading
+
 threading  # pyflakes
 
 try:
@@ -39,9 +40,21 @@ except ImportError:
     from urllib2 import HTTPError, urlopen  # type: ignore
 
 try:
-    from typing import (Any, Iterable, Iterator, List, Optional, Set,
-                        Tuple, Union, no_type_check, overload, Mapping,
-                        Sequence)
+    from typing import (
+        Any,
+        Iterable,
+        Iterator,
+        List,
+        Optional,
+        Set,
+        Tuple,
+        Union,
+        no_type_check,
+        overload,
+        Mapping,
+        Sequence,
+    )
+
     Any  # pyflakes
     Iterable  # pyflakes
     Iterator  # pyflakes
@@ -57,6 +70,7 @@ except ImportError:
 
     class GenericWrapper(object):
         """Takes a non-generic type and adds __getitem__"""
+
         def __init__(self, value):
             # type: (type) -> None
             self.value = value
@@ -73,22 +87,28 @@ except ImportError:
     def no_type_check(arg):
         # type: (Any) -> Any
         return arg
+
     pass
 
 import apt_pkg
 import apt.progress.text
 
-from apt.progress.base import (
-    AcquireProgress,
-    InstallProgress,
-)
+from apt.progress.base import AcquireProgress, InstallProgress
+
 AcquireProgress  # pyflakes
 InstallProgress  # pyflakes
 
 from apt_pkg import gettext as _
 
-__all__ = ('BaseDependency', 'Dependency', 'Origin', 'Package', 'Record',
-           'Version', 'VersionList')
+__all__ = (
+    "BaseDependency",
+    "Dependency",
+    "Origin",
+    "Package",
+    "Record",
+    "Version",
+    "VersionList",
+)
 
 if sys.version_info.major >= 3:
     unicode = str
@@ -123,12 +143,12 @@ class BaseDependency(object):
             # type: (object) -> bool
             if str.__eq__(self, other):
                 return True
-            elif str.__eq__(self, '<'):
-                return str.__eq__('<<', other)
-            elif str.__eq__(self, '>'):
-                return str.__eq__('>>', other)
-            elif str.__eq__(self, '='):
-                return str.__eq__('==', other)
+            elif str.__eq__(self, "<"):
+                return str.__eq__("<<", other)
+            elif str.__eq__(self, ">"):
+                return str.__eq__(">>", other)
+            elif str.__eq__(self, "="):
+                return str.__eq__("==", other)
             else:
                 return False
 
@@ -143,12 +163,16 @@ class BaseDependency(object):
 
     def __str__(self):
         # type: () -> str
-        return '%s: %s' % (self.rawtype, self.rawstr)
+        return "%s: %s" % (self.rawtype, self.rawstr)
 
     def __repr__(self):
         # type: () -> str
-        return ('<BaseDependency: name:%r relation:%r version:%r rawtype:%r>'
-                % (self.name, self.relation, self.version, self.rawtype))
+        return "<BaseDependency: name:%r relation:%r version:%r rawtype:%r>" % (
+            self.name,
+            self.relation,
+            self.version,
+            self.rawtype,
+        )
 
     @property
     def name(self):
@@ -233,7 +257,7 @@ class BaseDependency(object):
         .. versionadded:: 1.0.0
         """
         if self.version:
-            return '%s %s %s' % (self.name, self.relation_deb, self.version)
+            return "%s %s %s" % (self.name, self.relation_deb, self.version)
         else:
             return self.name
 
@@ -253,7 +277,7 @@ class BaseDependency(object):
     def pre_depend(self):
         # type: () -> bool
         """Whether this is a PreDepends."""
-        return self._dep.dep_type_untranslated == 'PreDepends'
+        return self._dep.dep_type_untranslated == "PreDepends"
 
 
 class Dependency(List[BaseDependency]):
@@ -274,11 +298,11 @@ class Dependency(List[BaseDependency]):
 
     def __str__(self):
         # type: () -> str
-        return '%s: %s' % (self.rawtype, self.rawstr)
+        return "%s: %s" % (self.rawtype, self.rawstr)
 
     def __repr__(self):
         # type: () -> str
-        return '<Dependency: [%s]>' % (', '.join(repr(bd) for bd in self))
+        return "<Dependency: [%s]>" % (", ".join(repr(bd) for bd in self))
 
     @property
     def or_dependencies(self):
@@ -299,7 +323,7 @@ class Dependency(List[BaseDependency]):
 
         .. versionadded:: 1.0.0
         """
-        return ' | '.join(bd.rawstr for bd in self)
+        return " | ".join(bd.rawstr for bd in self)
 
     @property
     def rawtype(self):
@@ -370,10 +394,17 @@ class Origin(object):
 
     def __repr__(self):
         # type: () -> str
-        return ("<Origin component:%r archive:%r origin:%r label:%r "
-                "site:%r isTrusted:%r>") % (self.component, self.archive,
-                                            self.origin, self.label,
-                                            self.site, self.trusted)
+        return (
+            "<Origin component:%r archive:%r origin:%r label:%r "
+            "site:%r isTrusted:%r>"
+        ) % (
+            self.component,
+            self.archive,
+            self.origin,
+            self.label,
+            self.site,
+            self.trusted,
+        )
 
 
 class Record(Mapping[Any, Any]):
@@ -418,7 +449,7 @@ class Record(Mapping[Any, Any]):
 
     def __iter__(self):
         # type: () -> Iterator[str]
-        return iter(self._rec.keys())   # type: ignore
+        return iter(self._rec.keys())  # type: ignore
 
     def iteritems(self):
         # type: () -> Iterable[Tuple[object, str]]
@@ -522,12 +553,11 @@ class Version(object):
 
     def __str__(self):
         # type: () -> str
-        return '%s=%s' % (self.package.name, self.version)
+        return "%s=%s" % (self.package.name, self.version)
 
     def __repr__(self):
         # type: () -> str
-        return '<Version: package:%r version:%r>' % (self.package.name,
-                                                     self.version)
+        return "<Version: package:%r version:%r>" % (self.package.name, self.version)
 
     @property
     def _records(self):
@@ -585,7 +615,7 @@ class Version(object):
         .. versionadded:: 1.0.0
         """
         inst_ver = self.package.installed
-        return (inst_ver is not None and inst_ver._cand.id == self._cand.id)
+        return inst_ver is not None and inst_ver._cand.id == self._cand.id
 
     @property
     def version(self):
@@ -622,21 +652,23 @@ class Version(object):
         See http://www.debian.org/doc/debian-policy/ch-controlfields.html
         for more information.
         """
-        desc = ''
+        desc = ""
         records = self._translated_records
         dsc = records.long_desc if records is not None else None
 
         if not dsc:
-            return _("Missing description for '%s'."
-                     "Please report.") % (self.package.name)
+            return _("Missing description for '%s'." "Please report.") % (
+                self.package.name
+            )
 
         try:
             if not isinstance(dsc, unicode):
                 # Only convert where needed (i.e. Python 2.X)
                 dsc = dsc.decode("utf-8")
         except UnicodeDecodeError as err:
-            return _("Invalid unicode in description for '%s' (%s). "
-                     "Please report.") % (self.package.name, err)
+            return _(
+                "Invalid unicode in description for '%s' (%s). " "Please report."
+            ) % (self.package.name, err)
 
         lines = iter(dsc.split("\n"))
         # Skip the first line, since its a duplication of the summary
@@ -849,7 +881,7 @@ class Version(object):
         except StopIteration:
             return None
 
-    def fetch_binary(self, destdir='', progress=None):
+    def fetch_binary(self, destdir="", progress=None):
         # type: (str, AcquireProgress) -> str
         """Fetch the binary version of the package.
 
@@ -865,16 +897,24 @@ class Version(object):
         base = os.path.basename(self._records.filename)
         destfile = os.path.join(destdir, base)
         if _file_is_same(destfile, self.size, self._records.md5_hash):
-            logging.debug('Ignoring already existing file: %s' % destfile)
+            logging.debug("Ignoring already existing file: %s" % destfile)
             return os.path.abspath(destfile)
         acq = apt_pkg.Acquire(progress or apt.progress.text.AcquireProgress())
-        acqfile = apt_pkg.AcquireFile(acq, self.uri, self._records.md5_hash,  # type: ignore # TODO: Do not use MD5 # nopep8
-                                      self.size, base, destfile=destfile)
+        acqfile = apt_pkg.AcquireFile(
+            acq,
+            self.uri,
+            self._records.md5_hash,  # type: ignore # TODO: Do not use MD5 # nopep8
+            self.size,
+            base,
+            destfile=destfile,
+        )
         acq.run()
 
         if acqfile.status != acqfile.STAT_DONE:
-            raise FetchError("The item %r could not be fetched: %s" %
-                             (acqfile.destfile, acqfile.error_text))
+            raise FetchError(
+                "The item %r could not be fetched: %s"
+                % (acqfile.destfile, acqfile.error_text)
+            )
 
         return os.path.abspath(destfile)
 
@@ -912,13 +952,16 @@ class Version(object):
         for md5, size, path, type_ in src.files:
             base = os.path.basename(path)
             destfile = os.path.join(destdir, base)
-            if type_ == 'dsc':
+            if type_ == "dsc":
                 dsc = destfile
             if _file_is_same(destfile, size, md5):
-                logging.debug('Ignoring already existing file: %s' % destfile)
+                logging.debug("Ignoring already existing file: %s" % destfile)
                 continue
-            files.append(apt_pkg.AcquireFile(acq, src.index.archive_uri(path),
-                         md5, size, base, destfile=destfile))
+            files.append(
+                apt_pkg.AcquireFile(
+                    acq, src.index.archive_uri(path), md5, size, base, destfile=destfile
+                )
+            )
         acq.run()
 
         if dsc is None:
@@ -926,11 +969,13 @@ class Version(object):
 
         for item in acq.items:
             if item.status != item.STAT_DONE:
-                raise FetchError("The item %r could not be fetched: %s" %
-                                 (item.destfile, item.error_text))
+                raise FetchError(
+                    "The item %r could not be fetched: %s"
+                    % (item.destfile, item.error_text)
+                )
 
         if unpack:
-            outdir = src.package + '-' + apt_pkg.upstream_version(src.version)
+            outdir = src.package + "-" + apt_pkg.upstream_version(src.version)
             outdir = os.path.join(destdir, outdir)
             subprocess.check_call(["dpkg-source", "-x", dsc, outdir])
             return os.path.abspath(outdir)
@@ -983,11 +1028,11 @@ class VersionList(Sequence[Version]):
 
     def __str__(self):
         # type: () -> str
-        return '[%s]' % (', '.join(str(ver) for ver in self))
+        return "[%s]" % (", ".join(str(ver) for ver in self))
 
     def __repr__(self):
         # type: () -> str
-        return '<VersionList: %r>' % self.keys()
+        return "<VersionList: %r>" % self.keys()
 
     def __iter__(self):
         # type: () -> Iterator[Version]
@@ -1023,7 +1068,9 @@ class VersionList(Sequence[Version]):
         # type: (str, Optional[Version]) -> Optional[Version]
         """Return the key or the default."""
         try:
-            return self[key]  # type: ignore  # FIXME: should be deterined automatically # nopep8
+            return self[
+                key
+            ]  # type: ignore  # FIXME: should be deterined automatically # nopep8
         except LookupError:
             return default
 
@@ -1040,8 +1087,8 @@ class Package(object):
         # type: (apt.Cache, apt_pkg.Package) -> None
         """ Init the Package object """
         self._pkg = pkgiter
-        self._pcache = pcache           # python cache in cache.py
-        self._changelog = ""            # Cached changelog
+        self._pcache = pcache  # python cache in cache.py
+        self._changelog = ""  # Cached changelog
 
     def __str__(self):
         # type: () -> str
@@ -1049,8 +1096,11 @@ class Package(object):
 
     def __repr__(self):
         # type: () -> str
-        return '<Package: name:%r architecture=%r id:%r>' % (
-            self._pkg.name, self._pkg.architecture, self._pkg.id)
+        return "<Package: name:%r architecture=%r id:%r>" % (
+            self._pkg.name,
+            self._pkg.architecture,
+            self._pkg.id,
+        )
 
     def __lt__(self, other):
         # type: (Package) -> bool
@@ -1196,14 +1246,13 @@ class Package(object):
     def is_installed(self):
         # type: () -> bool
         """Return ``True`` if the package is installed."""
-        return (self._pkg.current_ver is not None)
+        return self._pkg.current_ver is not None
 
     @property
     def is_upgradable(self):
         # type: () -> bool
         """Return ``True`` if the package is upgradable."""
-        return (self.is_installed and
-                self._pcache._depcache.is_upgradable(self._pkg))
+        return self.is_installed and self._pcache._depcache.is_upgradable(self._pkg)
 
     @property
     def is_auto_removable(self):
@@ -1214,14 +1263,16 @@ class Package(object):
         another package, and if no packages depend on it anymore, the package
         is no longer required.
         """
-        return ((self.is_installed or self.marked_install) and
-                self._pcache._depcache.is_garbage(self._pkg))
+        return (
+            self.is_installed or self.marked_install
+        ) and self._pcache._depcache.is_garbage(self._pkg)
 
     @property
     def is_auto_installed(self):
         # type: () -> bool
         """Return whether the package is marked as automatically installed."""
         return self._pcache._depcache.is_auto_installed(self._pkg)
+
     # sizes
 
     @property
@@ -1269,13 +1320,17 @@ class Package(object):
 
         if uri is None:
             if self.candidate.origins[0].origin == "Debian":
-                uri = "http://packages.debian.org/changelogs/pool" \
-                      "/%(src_section)s/%(prefix)s/%(src_pkg)s" \
-                      "/%(src_pkg)s_%(src_ver)s/changelog"
+                uri = (
+                    "http://packages.debian.org/changelogs/pool"
+                    "/%(src_section)s/%(prefix)s/%(src_pkg)s"
+                    "/%(src_pkg)s_%(src_ver)s/changelog"
+                )
             elif self.candidate.origins[0].origin == "Ubuntu":
-                uri = "http://changelogs.ubuntu.com/changelogs/pool" \
-                      "/%(src_section)s/%(prefix)s/%(src_pkg)s" \
-                      "/%(src_pkg)s_%(src_ver)s/changelog"
+                uri = (
+                    "http://changelogs.ubuntu.com/changelogs/pool"
+                    "/%(src_section)s/%(prefix)s/%(src_pkg)s"
+                    "/%(src_pkg)s_%(src_ver)s/changelog"
+                )
             else:
                 res = _("The list of changes is not available")
                 if isinstance(res, unicode):
@@ -1332,10 +1387,12 @@ class Package(object):
             src_ver = "".join(src_ver_split[1:])
         del src_ver_split
 
-        uri = uri % {"src_section": src_section,
-                     "prefix": prefix,
-                     "src_pkg": src_pkg,
-                     "src_ver": src_ver}
+        uri = uri % {
+            "src_section": src_section,
+            "prefix": prefix,
+            "src_pkg": src_pkg,
+            "src_ver": src_ver,
+        }
 
         timeout = socket.getdefaulttimeout()
 
@@ -1366,20 +1423,22 @@ class Package(object):
                     # any http header, urllib2 seems to treat it as ascii
                     line = line_raw.decode("utf-8")
 
-                    #print line.encode('utf-8')
+                    # print line.encode('utf-8')
                     match = re.match(regexp, line)
                     if match:
                         # strip epoch from installed version
                         # and from changelog too
-                        installed = getattr(self.installed, 'version', None)
+                        installed = getattr(self.installed, "version", None)
                         if installed and ":" in installed:
                             installed = installed.split(":", 1)[1]
                         changelog_ver = match.group(1)
                         if changelog_ver and ":" in changelog_ver:
                             changelog_ver = changelog_ver.split(":", 1)[1]
 
-                        if (installed and apt_pkg.version_compare(
-                                changelog_ver, installed) <= 0):
+                        if (
+                            installed
+                            and apt_pkg.version_compare(changelog_ver, installed) <= 0
+                        ):
                             break
                     # EOF (shouldn't really happen)
                     changelog += line
@@ -1393,12 +1452,14 @@ class Package(object):
 
             except HTTPError:
                 if self.candidate.origins[0].origin == "Ubuntu":
-                    res = _("The list of changes is not available yet.\n\n"
-                            "Please use "
-                            "http://launchpad.net/ubuntu/+source/%s/"
-                            "%s/+changelog\n"
-                            "until the changes become available or try again "
-                            "later.") % (src_pkg, src_ver)
+                    res = _(
+                        "The list of changes is not available yet.\n\n"
+                        "Please use "
+                        "http://launchpad.net/ubuntu/+source/%s/"
+                        "%s/+changelog\n"
+                        "until the changes become available or try again "
+                        "later."
+                    ) % (src_pkg, src_ver)
                 else:
                     res = _("The list of changes is not available")
                 if isinstance(res, unicode):
@@ -1406,8 +1467,10 @@ class Package(object):
                 else:
                     return res.decode("utf-8")
             except (IOError, BadStatusLine):
-                res = _("Failed to download the list of changes. \nPlease "
-                        "check your Internet connection.")
+                res = _(
+                    "Failed to download the list of changes. \nPlease "
+                    "check your Internet connection."
+                )
                 if isinstance(res, unicode):
                     return res
                 else:
@@ -1441,7 +1504,7 @@ class Package(object):
     def has_config_files(self):
         # type: () -> bool
         """Checks whether the package is is the config-files state."""
-        return self. _pkg.current_state == apt_pkg.CURSTATE_CONFIG_FILES
+        return self._pkg.current_state == apt_pkg.CURSTATE_CONFIG_FILES
 
     # depcache actions
 
@@ -1507,8 +1570,10 @@ class Package(object):
             self.mark_auto(auto)
         else:
             # FIXME: we may want to throw a exception here
-            sys.stderr.write(("MarkUpgrade() called on a non-upgradeable pkg: "
-                              "'%s'\n") % self._pkg.name)
+            sys.stderr.write(
+                ("MarkUpgrade() called on a non-upgradeable pkg: " "'%s'\n")
+                % self._pkg.name
+            )
 
     def mark_auto(self, auto=True):
         # type: (bool) -> None
@@ -1538,6 +1603,7 @@ def _test():
     """Self-test."""
     print("Self-test for the Package modul")
     import random
+
     apt_pkg.init()
     progress = apt.progress.text.OpProgress()
     cache = apt.Cache(progress)
@@ -1560,8 +1626,12 @@ def _test():
     print("Dependencies: %s" % pkg.installed.dependencies)
     print("Recommends: %s" % pkg.installed.recommends)
     for dep in pkg.candidate.dependencies:
-        print(",".join("%s (%s) (%s) (%s)" % (o.name, o.version, o.relation,
-                       o.pre_depend) for o in dep.or_dependencies))
+        print(
+            ",".join(
+                "%s (%s) (%s) (%s)" % (o.name, o.version, o.relation, o.pre_depend)
+                for o in dep.or_dependencies
+            )
+        )
     print("arch: %s" % pkg.candidate.architecture)
     print("homepage: %s" % pkg.candidate.homepage)
     print("rec: ", pkg.candidate.record)

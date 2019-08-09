@@ -34,13 +34,19 @@ import time
 
 import apt_pkg
 from .distinfo import DistInfo
-#from apt_pkg import gettext as _
+
+# from apt_pkg import gettext as _
 
 
 # some global helpers
 
-__all__ = ['is_mirror', 'SourceEntry', 'NullMatcher', 'SourcesList',
-           'SourceEntryMatcher']
+__all__ = [
+    "is_mirror",
+    "SourceEntry",
+    "NullMatcher",
+    "SourcesList",
+    "SourceEntryMatcher",
+]
 
 
 def is_mirror(master_uri, compare_uri):
@@ -54,21 +60,20 @@ def is_mirror(master_uri, compare_uri):
     master_uri = master_uri.rstrip("/ ")
     # uri is identical
     if compare_uri == master_uri:
-        #print "Identical"
+        # print "Identical"
         return True
     # add uri is a master site and orig_uri has the from "XX.mastersite"
     # (e.g. de.archive.ubuntu.com)
     try:
         compare_srv = compare_uri.split("//")[1]
         master_srv = master_uri.split("//")[1]
-        #print "%s == %s " % (add_srv, orig_srv)
+        # print "%s == %s " % (add_srv, orig_srv)
     except IndexError:  # ok, somethings wrong here
-        #print "IndexError"
+        # print "IndexError"
         return False
     # remove the leading "<country>." (if any) and see if that helps
-    if "." in compare_srv and \
-           compare_srv[compare_srv.index(".") + 1:] == master_srv:
-        #print "Mirror"
+    if "." in compare_srv and compare_srv[compare_srv.index(".") + 1 :] == master_srv:
+        # print "Mirror"
         return True
     return False
 
@@ -87,31 +92,34 @@ class SourceEntry(object):
     """ single sources.list entry """
 
     def __init__(self, line, file=None):
-        self.invalid = False         # is the source entry valid
-        self.disabled = False        # is it disabled ('#' in front)
-        self.type = ""               # what type (deb, deb-src)
-        self.architectures = []      # architectures
-        self.trusted = None          # Trusted
-        self.uri = ""                # base-uri
-        self.dist = ""               # distribution (dapper, edgy, etc)
-        self.comps = []              # list of available componetns (may empty)
-        self.comment = ""            # (optional) comment
-        self.line = line             # the original sources.list line
+        self.invalid = False  # is the source entry valid
+        self.disabled = False  # is it disabled ('#' in front)
+        self.type = ""  # what type (deb, deb-src)
+        self.architectures = []  # architectures
+        self.trusted = None  # Trusted
+        self.uri = ""  # base-uri
+        self.dist = ""  # distribution (dapper, edgy, etc)
+        self.comps = []  # list of available componetns (may empty)
+        self.comment = ""  # (optional) comment
+        self.line = line  # the original sources.list line
         if file is None:
-            file = apt_pkg.config.find_dir(
-                "Dir::Etc") + apt_pkg.config.find("Dir::Etc::sourcelist")
-        self.file = file             # the file that the entry is located in
+            file = apt_pkg.config.find_dir("Dir::Etc") + apt_pkg.config.find(
+                "Dir::Etc::sourcelist"
+            )
+        self.file = file  # the file that the entry is located in
         self.parse(line)
-        self.template = None         # type DistInfo.Suite
+        self.template = None  # type DistInfo.Suite
         self.children = []
 
     def __eq__(self, other):
         """ equal operator for two sources.list entries """
-        return (self.disabled == other.disabled and
-                self.type == other.type and
-                self.uri == other.uri and
-                self.dist == other.dist and
-                self.comps == other.comps)
+        return (
+            self.disabled == other.disabled
+            and self.type == other.type
+            and self.uri == other.uri
+            and self.dist == other.dist
+            and self.comps == other.comps
+        )
 
     def mysplit(self, line):
         """ a split() implementation that understands the sources.list
@@ -154,7 +162,7 @@ class SourceEntry(object):
         """ parse a given sources.list (textual) line and break it up
             into the field we have """
         line = self.line.strip()
-        #print line
+        # print line
         # check if the source is enabled/disabled
         if line == "" or line == "#":  # empty line
             self.invalid = True
@@ -171,7 +179,7 @@ class SourceEntry(object):
         # check for another "#" in the line (this is treated as a comment)
         i = line.find("#")
         if i > 0:
-            self.comment = line[i + 1:]
+            self.comment = line[i + 1 :]
             line = line[:i]
         # source is ok, split it and see what we have
         pieces = self.mysplit(line)
@@ -219,7 +227,7 @@ class SourceEntry(object):
         self.disabled = not new_value
         # enable, remove all "#" from the start of the line
         if new_value:
-            self.line = self.line.lstrip().lstrip('#')
+            self.line = self.line.lstrip().lstrip("#")
         else:
             # disabled, add a "#"
             if self.line.strip()[0] != "#":
@@ -241,7 +249,9 @@ class SourceEntry(object):
 
         if self.architectures and self.trusted is not None:
             line += " [arch=%s trusted=%s]" % (
-                ",".join(self.architectures), "yes" if self.trusted else "no")
+                ",".join(self.architectures),
+                "yes" if self.trusted else "no",
+            )
         elif self.trusted is not None:
             line += " [trusted=%s]" % ("yes" if self.trusted else "no")
         elif self.architectures:
@@ -265,10 +275,10 @@ class NullMatcher(object):
 class SourcesList(object):
     """ represents the full sources.list + sources.list.d file """
 
-    def __init__(self,
-                 withMatcher=True,
-                 matcherPath="/usr/share/python-apt/templates/"):
-        self.list = []          # the actual SourceEntries Type
+    def __init__(
+        self, withMatcher=True, matcherPath="/usr/share/python-apt/templates/"
+    ):
+        self.list = []  # the actual SourceEntries Type
         if withMatcher:
             self.matcher = SourceEntryMatcher(matcherPath)
         else:
@@ -298,12 +308,22 @@ class SourcesList(object):
 
     def __find(self, *predicates, **attrs):
         for source in self.list:
-            if (all(getattr(source, key) == attrs[key] for key in attrs) and
-                    all(predicate(source) for predicate in predicates)):
+            if all(getattr(source, key) == attrs[key] for key in attrs) and all(
+                predicate(source) for predicate in predicates
+            ):
                 yield source
 
-    def add(self, type, uri, dist, orig_comps, comment="", pos=-1, file=None,
-            architectures=[]):
+    def add(
+        self,
+        type,
+        uri,
+        dist,
+        orig_comps,
+        comment="",
+        pos=-1,
+        file=None,
+        architectures=[],
+    ):
         """
         Add a new source to the sources.list.
         The method will search for existing matching repos and will try to
@@ -314,9 +334,14 @@ class SourcesList(object):
         # create a working copy of the component list so that
         # we can modify it later
         comps = orig_comps[:]
-        sources = self.__find(lambda s: set(s.architectures) == architectures,
-                              disabled=False, invalid=False, type=type,
-                              uri=uri, dist=dist)
+        sources = self.__find(
+            lambda s: set(s.architectures) == architectures,
+            disabled=False,
+            invalid=False,
+            type=type,
+            uri=uri,
+            dist=dist,
+        )
         # check if we have this source already in the sources.list
         for source in sources:
             for new_comp in comps:
@@ -327,8 +352,13 @@ class SourcesList(object):
                     if len(comps) == 0:
                         return source
 
-        sources = self.__find(lambda s: set(s.architectures) == architectures,
-                              invalid=False, type=type, uri=uri, dist=dist)
+        sources = self.__find(
+            lambda s: set(s.architectures) == architectures,
+            invalid=False,
+            type=type,
+            uri=uri,
+            dist=dist,
+        )
         for source in sources:
             # if there is a repo with the same (type, uri, dist) just add the
             # components
@@ -377,8 +407,7 @@ class SourcesList(object):
         if backup_ext is None:
             backup_ext = time.strftime("%y%m%d.%H%M")
         for source in self.list:
-            if (source.file not in already_backuped and
-                os.path.exists(source.file)):
+            if source.file not in already_backuped and os.path.exists(source.file):
                 shutil.copy(source.file, "%s%s" % (source.file, backup_ext))
         return backup_ext
 
@@ -401,7 +430,8 @@ class SourcesList(object):
             header = (
                 "## See sources.list(5) for more information, especialy\n"
                 "# Remember that you can only use http, ftp or file URIs\n"
-                "# CDROMs are managed through the apt-cdrom tool.\n")
+                "# CDROMs are managed through the apt-cdrom tool.\n"
+            )
 
             with open(path, "w") as f:
                 f.write(header)
@@ -436,8 +466,8 @@ class SourcesList(object):
                 # store each source with children aka. a parent :)
                 if len(source.template.children) > 0:
                     parents.append(source)
-        #print self.used_child_templates
-        #print self.parents
+        # print self.used_child_templates
+        # print self.parents
         return (parents, used_child_templates)
 
 
@@ -464,16 +494,20 @@ class SourceEntryMatcher(object):
         """Add a matching template to the source"""
         found = False
         for template in self.templates:
-            if (re.search(template.match_uri, source.uri) and
-                    re.match(template.match_name, source.dist) and
-                    # deb is a valid fallback for deb-src (if that is not
-                    # definied, see #760035
-                    (source.type == template.type or template.type == "deb")):
+            if (
+                re.search(template.match_uri, source.uri)
+                and re.match(template.match_name, source.dist)
+                and
+                # deb is a valid fallback for deb-src (if that is not
+                # definied, see #760035
+                (source.type == template.type or template.type == "deb")
+            ):
                 found = True
                 source.template = template
                 break
-            elif (template.is_mirror(source.uri) and
-                      re.match(template.match_name, source.dist)):
+            elif template.is_mirror(source.uri) and re.match(
+                template.match_name, source.dist
+            ):
                 found = True
                 source.template = template
                 break
@@ -487,13 +521,20 @@ if __name__ == "__main__":
 
     for entry in sources:
         logging.info("entry %s" % entry.str())
-        #print entry.uri
+        # print entry.uri
 
-    mirror = is_mirror("http://archive.ubuntu.com/ubuntu/",
-                       "http://de.archive.ubuntu.com/ubuntu/")
+    mirror = is_mirror(
+        "http://archive.ubuntu.com/ubuntu/", "http://de.archive.ubuntu.com/ubuntu/"
+    )
     logging.info("is_mirror(): %s" % mirror)
 
-    logging.info(is_mirror("http://archive.ubuntu.com/ubuntu",
-                    "http://de.archive.ubuntu.com/ubuntu/"))
-    logging.info(is_mirror("http://archive.ubuntu.com/ubuntu/",
-                    "http://de.archive.ubuntu.com/ubuntu"))
+    logging.info(
+        is_mirror(
+            "http://archive.ubuntu.com/ubuntu", "http://de.archive.ubuntu.com/ubuntu/"
+        )
+    )
+    logging.info(
+        is_mirror(
+            "http://archive.ubuntu.com/ubuntu/", "http://de.archive.ubuntu.com/ubuntu"
+        )
+    )

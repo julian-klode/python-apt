@@ -21,8 +21,8 @@ Cnf = apt_pkg.Configuration()
 apt_pkg.read_config_file_isc(Cnf, ConfigFile[0])
 
 # Print the configuration space
-#print "The Configuration space looks like:"
-#for I in Cnf.keys():
+# print "The Configuration space looks like:"
+# for I in Cnf.keys():
 #   print "%s \"%s\";" % (I, Cnf[I])
 
 # bind8 config file..
@@ -31,13 +31,16 @@ if "Zone" in Cnf:
     for I in Cnf.list("zone"):
         SubCnf = Cnf.sub_tree(I)
         if SubCnf.find("type") == "slave":
-            print("Masters for %s: %s" % (
-                SubCnf.my_tag(), SubCnf.value_list("masters")))
+            print(
+                "Masters for %s: %s" % (SubCnf.my_tag(), SubCnf.value_list("masters"))
+            )
 else:
     print("Tree definitions:")
     for I in Cnf.list("tree"):
         SubCnf = Cnf.sub_tree(I)
         # This could use Find which would eliminate the possibility of
         # exceptions.
-        print("Subtree %s with sections '%s' and architectures '%s'" % (
-            SubCnf.my_tag(), SubCnf["Sections"], SubCnf["Architectures"]))
+        print(
+            "Subtree %s with sections '%s' and architectures '%s'"
+            % (SubCnf.my_tag(), SubCnf["Sections"], SubCnf["Architectures"])
+        )

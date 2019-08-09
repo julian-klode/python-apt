@@ -27,8 +27,20 @@ import warnings
 import weakref
 
 try:
-    from typing import (Any, Callable, Dict, Iterator, List, Optional,
-                        Set, Tuple, Union, cast, KeysView)
+    from typing import (
+        Any,
+        Callable,
+        Dict,
+        Iterator,
+        List,
+        Optional,
+        Set,
+        Tuple,
+        Union,
+        cast,
+        KeysView,
+    )
+
     Any  # pyflakes
     Callable  # pyflakes
     Dict  # pyflakes
@@ -40,14 +52,17 @@ try:
     Tuple  # pyflakes
     Union  # pyflakes
 except ImportError:
+
     def cast(typ, obj):  # type: ignore
         return obj
+
     pass
 
 import apt_pkg
 from apt.package import Package, Version
 import apt.progress.text
 from apt.progress.base import AcquireProgress, InstallProgress, OpProgress
+
 OpProgress  # pyflakes
 InstallProgress  # pyflakes
 AcquireProgress  # pyflakes
@@ -85,8 +100,9 @@ class _WrappedLock(object):
         try:
             return self._lock.__enter__()
         except apt_pkg.Error as e:
-            raise LockFailedException(("Failed to lock directory %s: %s") %
-                                       (self._path, e))
+            raise LockFailedException(
+                ("Failed to lock directory %s: %s") % (self._path, e)
+            )
 
     def __exit__(self, typ, value, traceback):
         # type: (object, object, object) -> None
@@ -123,12 +139,22 @@ class Cache(object):
         # type: (OpProgress, str, bool) -> None
         self._cache = cast(apt_pkg.Cache, None)  # type: apt_pkg.Cache
         self._depcache = cast(apt_pkg.DepCache, None)  # type: apt_pkg.DepCache
-        self._records = cast(apt_pkg.PackageRecords, None)  # type: apt_pkg.PackageRecords # nopep8
+        self._records = cast(
+            apt_pkg.PackageRecords, None
+        )  # type: apt_pkg.PackageRecords # nopep8
         self._list = cast(apt_pkg.SourceList, None)  # type: apt_pkg.SourceList
-        self._callbacks = {}  # type: Dict[str, List[Union[Callable[..., None],str]]] # nopep8
-        self._callbacks2 = {}  # type: Dict[str, List[Tuple[Callable[..., Any], Tuple[Any, ...], Dict[Any,Any]]]] # nopep8
-        self._weakref = weakref.WeakValueDictionary()  # type: weakref.WeakValueDictionary[str, apt.Package] # nopep8
-        self._weakversions = weakref.WeakSet()  # type: weakref.WeakSet[Version] # nopep8
+        self._callbacks = (
+            {}
+        )  # type: Dict[str, List[Union[Callable[..., None],str]]] # nopep8
+        self._callbacks2 = (
+            {}
+        )  # type: Dict[str, List[Tuple[Callable[..., Any], Tuple[Any, ...], Dict[Any,Any]]]] # nopep8
+        self._weakref = (
+            weakref.WeakValueDictionary()
+        )  # type: weakref.WeakValueDictionary[str, apt.Package] # nopep8
+        self._weakversions = (
+            weakref.WeakSet()
+        )  # type: weakref.WeakSet[Version] # nopep8
         self._changes_count = -1
         self._sorted_set = None  # type: Optional[List[str]]
 
@@ -140,18 +166,16 @@ class Cache(object):
         if rootdir:
             rootdir = os.path.abspath(rootdir)
             if os.path.exists(rootdir + "/etc/apt/apt.conf"):
-                apt_pkg.read_config_file(apt_pkg.config,
-                                         rootdir + "/etc/apt/apt.conf")
+                apt_pkg.read_config_file(apt_pkg.config, rootdir + "/etc/apt/apt.conf")
             if os.path.isdir(rootdir + "/etc/apt/apt.conf.d"):
-                apt_pkg.read_config_dir(apt_pkg.config,
-                                        rootdir + "/etc/apt/apt.conf.d")
+                apt_pkg.read_config_dir(apt_pkg.config, rootdir + "/etc/apt/apt.conf.d")
             apt_pkg.config.set("Dir", rootdir)
-            apt_pkg.config.set("Dir::State::status",
-                               rootdir + "/var/lib/dpkg/status")
+            apt_pkg.config.set("Dir::State::status", rootdir + "/var/lib/dpkg/status")
             # also set dpkg to the rootdir path so that its called for the
             # --print-foreign-architectures call
-            apt_pkg.config.set("Dir::bin::dpkg",
-                               os.path.join(rootdir, "usr", "bin", "dpkg"))
+            apt_pkg.config.set(
+                "Dir::bin::dpkg", os.path.join(rootdir, "usr", "bin", "dpkg")
+            )
             # create required dirs/files when run with special rootdir
             # automatically
             self._check_and_create_required_dirs(rootdir)
@@ -181,17 +205,16 @@ class Cache(object):
         check if the required apt directories/files are there and if
         not create them
         """
-        files = ["/var/lib/dpkg/status",
-                 "/etc/apt/sources.list",
-                 ]
-        dirs = ["/var/lib/dpkg",
-                "/etc/apt/",
-                "/var/cache/apt/archives/partial",
-                "/var/lib/apt/lists/partial",
-                ]
+        files = ["/var/lib/dpkg/status", "/etc/apt/sources.list"]
+        dirs = [
+            "/var/lib/dpkg",
+            "/etc/apt/",
+            "/var/cache/apt/archives/partial",
+            "/var/lib/apt/lists/partial",
+        ]
         for d in dirs:
             if not os.path.exists(rootdir + d):
-                #print "creating: ", rootdir + d
+                # print "creating: ", rootdir + d
                 os.makedirs(rootdir + d)
         for f in files:
             if not os.path.exists(rootdir + f):
@@ -202,14 +225,14 @@ class Cache(object):
         """ internal helper to run a callback """
         if name in self._callbacks:
             for callback in self._callbacks[name]:
-                if callback == '_inc_changes_count':
+                if callback == "_inc_changes_count":
                     self._inc_changes_count()
                 else:
                     callback()  # type: ignore
 
         if name in self._callbacks2:
             for callback, args, kwds in self._callbacks2[name]:
-                    callback(self, *args, **kwds)
+                callback(self, *args, **kwds)
 
     def open(self, progress=None):
         # type: (OpProgress) -> None
@@ -258,11 +281,12 @@ class Cache(object):
             # Package has been reseated above, reseat version
             for v in ver.package._pkg.version_list:
                 # Requirements as in debListParser::SameVersion
-                if (v.hash == ver._cand.hash and
-                    (v.size == 0 or ver._cand.size == 0 or
-                     v.size == ver._cand.size) and
-                    v.multi_arch == ver._cand.multi_arch and
-                    v.ver_str == ver._cand.ver_str):
+                if (
+                    v.hash == ver._cand.hash
+                    and (v.size == 0 or ver._cand.size == 0 or v.size == ver._cand.size)
+                    and v.multi_arch == ver._cand.multi_arch
+                    and v.ver_str == ver._cand.ver_str
+                ):
                     ver._cand = v
                     break
             else:
@@ -292,11 +316,11 @@ class Cache(object):
             key = str(key)
             rawpkg = self._cache[key]
         except KeyError:
-            raise KeyError('The cache has no package named %r' % key)
+            raise KeyError("The cache has no package named %r" % key)
 
         # It might be excluded due to not having a version or something
         if not self.__is_real_pkg(rawpkg):
-            raise KeyError('The cache has no package named %r' % key)
+            raise KeyError("The cache has no package named %r" % key)
 
         pkg = self._rawpkg_to_pkg(rawpkg)
 
@@ -357,9 +381,11 @@ class Cache(object):
     def keys(self):
         # type: () -> List[str]
         if self._sorted_set is None:
-            self._sorted_set = sorted(p.get_fullname(pretty=True)
-                                      for p in self._cache.packages
-                                        if self.__is_real_pkg(p))
+            self._sorted_set = sorted(
+                p.get_fullname(pretty=True)
+                for p in self._cache.packages
+                if self.__is_real_pkg(p)
+            )
         return list(self._sorted_set)  # We need a copy here, caller may modify
 
     def get_changes(self):
@@ -389,8 +415,7 @@ class Cache(object):
         # type: () -> int
         """Get the size of the packages that are required to download."""
         if self._records is None:
-            raise CacheClosedException(
-                "Cache object used after close() called")
+            raise CacheClosedException("Cache object used after close() called")
         pm = apt_pkg.PackageManager(self._depcache)
         fetcher = apt_pkg.Acquire()
         pm.get_archives(fetcher, self._list, self._records)
@@ -408,8 +433,9 @@ class Cache(object):
         """Return the packages not downloadable packages in reqreinst state."""
         reqreinst = set()
         get_candidate_ver = self._depcache.get_candidate_ver
-        states = frozenset((apt_pkg.INSTSTATE_REINSTREQ,
-                            apt_pkg.INSTSTATE_HOLD_REINSTREQ))
+        states = frozenset(
+            (apt_pkg.INSTSTATE_REINSTREQ, apt_pkg.INSTSTATE_HOLD_REINSTREQ)
+        )
         for pkg in self._cache.packages:
             cand = get_candidate_ver(pkg)
             if cand and not cand.downloadable and pkg.inst_state in states:
@@ -429,8 +455,7 @@ class Cache(object):
                 continue
             if item.STAT_IDLE:
                 continue
-            err_msg += "Failed to fetch %s %s\n" % (item.desc_uri,
-                                                    item.error_text)
+            err_msg += "Failed to fetch %s %s\n" % (item.desc_uri, item.error_text)
             failed = True
 
         # we raise a exception if the download failed or it was cancelt
@@ -444,8 +469,7 @@ class Cache(object):
         # type: (apt_pkg.Acquire, apt_pkg.PackageManager) -> int
         """ fetch the needed archives """
         if self._records is None:
-            raise CacheClosedException(
-                "Cache object used after close() called")
+            raise CacheClosedException("Cache object used after close() called")
 
         # this may as well throw a SystemError exception
         if not pm.get_archives(fetcher, self._list, self._records):
@@ -476,8 +500,7 @@ class Cache(object):
             fetcher = apt_pkg.Acquire(progress)
 
         with self._archive_lock:
-            return self._fetch_archives(fetcher,
-                                        apt_pkg.PackageManager(self._depcache))
+            return self._fetch_archives(fetcher, apt_pkg.PackageManager(self._depcache))
 
     def is_virtual_package(self, pkgname):
         # type: (str) -> bool
@@ -489,8 +512,9 @@ class Cache(object):
         else:
             return bool(pkg.has_provides and not pkg.has_versions)
 
-    def get_providing_packages(self, pkgname, candidate_only=True,
-                               include_nonvirtual=False):
+    def get_providing_packages(
+        self, pkgname, candidate_only=True, include_nonvirtual=False
+    ):
         # type: (str, bool, bool) -> List[Package]
         """Return a list of all packages providing a package.
 
@@ -522,8 +546,13 @@ class Cache(object):
                 providers.add(self._rawpkg_to_pkg(rawpkg))
         return list(providers)
 
-    def update(self, fetch_progress=None, pulse_interval=0,
-               raise_on_error=True, sources_list=None):
+    def update(
+        self,
+        fetch_progress=None,
+        pulse_interval=0,
+        raise_on_error=True,
+        sources_list=None,
+    ):
         # type: (AcquireProgress, int, bool, str) -> int
         """Run the equivalent of apt-get update.
 
@@ -540,11 +569,11 @@ class Cache(object):
         with _WrappedLock(apt_pkg.config.find_dir("Dir::State::Lists")):
             if sources_list:
                 old_sources_list = apt_pkg.config.find("Dir::Etc::sourcelist")
-                old_sources_list_d = (
-                    apt_pkg.config.find("Dir::Etc::sourceparts"))
+                old_sources_list_d = apt_pkg.config.find("Dir::Etc::sourceparts")
                 old_cleanup = apt_pkg.config.find("APT::List-Cleanup")
-                apt_pkg.config.set("Dir::Etc::sourcelist",
-                                   os.path.abspath(sources_list))
+                apt_pkg.config.set(
+                    "Dir::Etc::sourcelist", os.path.abspath(sources_list)
+                )
                 apt_pkg.config.set("Dir::Etc::sourceparts", "xxx")
                 apt_pkg.config.set("APT::List-Cleanup", "0")
                 slist = apt_pkg.SourceList()
@@ -556,8 +585,7 @@ class Cache(object):
                 if fetch_progress is None:
                     fetch_progress = apt.progress.base.AcquireProgress()
                 try:
-                    res = self._cache.update(fetch_progress, slist,
-                                             pulse_interval)
+                    res = self._cache.update(fetch_progress, slist, pulse_interval)
                 except SystemError as e:
                     raise FetchFailedException(e)
                 if not res and raise_on_error:
@@ -566,12 +594,9 @@ class Cache(object):
                     return res
             finally:
                 if sources_list:
-                    apt_pkg.config.set("Dir::Etc::sourcelist",
-                                       old_sources_list)
-                    apt_pkg.config.set("Dir::Etc::sourceparts",
-                                       old_sources_list_d)
-                    apt_pkg.config.set("APT::List-Cleanup",
-                                       old_cleanup)
+                    apt_pkg.config.set("Dir::Etc::sourcelist", old_sources_list)
+                    apt_pkg.config.set("Dir::Etc::sourceparts", old_sources_list_d)
+                    apt_pkg.config.set("APT::List-Cleanup", old_cleanup)
 
     def install_archives(self, pm, install_progress):
         # type: (apt_pkg.PackageManager, InstallProgress) -> int
@@ -649,12 +674,13 @@ class Cache(object):
                     elif res == pm.RESULT_INCOMPLETE:
                         pass
                     else:
-                        raise SystemError("internal-error: unknown result "
-                                          "code from InstallArchives: %s" %
-                                          res)
+                        raise SystemError(
+                            "internal-error: unknown result "
+                            "code from InstallArchives: %s" % res
+                        )
                     # reload the fetcher for media swaping
                     fetcher.shutdown()
-        return (res == pm.RESULT_COMPLETED)
+        return res == pm.RESULT_COMPLETED
 
     def clear(self):
         # type: () -> None
@@ -683,9 +709,12 @@ class Cache(object):
             Please use connect2() instead, as this function is very
             likely to cause a memory leak.
         """
-        if callback != '_inc_changes_count':
-            warnings.warn("connect() likely causes a reference"
-                          " cycle, use connect2() instead", RuntimeWarning, 2)
+        if callback != "_inc_changes_count":
+            warnings.warn(
+                "connect() likely causes a reference" " cycle, use connect2() instead",
+                RuntimeWarning,
+                2,
+            )
         if name not in self._callbacks:
             self._callbacks[name] = []
         self._callbacks[name].append(callback)
@@ -743,7 +772,8 @@ class Cache(object):
         'dpkg --configure -a' as root.
         """
         dpkg_status_dir = os.path.dirname(
-            apt_pkg.config.find_file("Dir::State::status"))
+            apt_pkg.config.find_file("Dir::State::status")
+        )
         for f in os.listdir(os.path.join(dpkg_status_dir, "updates")):
             if fnmatch.fnmatch(f, "[0-9]*"):
                 return True
@@ -987,7 +1017,7 @@ def _test():
     pm = apt_pkg.PackageManager(cache._depcache)
     fetcher = apt_pkg.Acquire(apt.progress.text.AcquireProgress())
     cache._fetch_archives(fetcher, pm)
-    #sys.exit(1)
+    # sys.exit(1)
 
     print("Testing filtered cache (argument is old cache)")
     filtered = FilteredCache(cache)
@@ -1014,5 +1044,5 @@ def _test():
     print(len(filtered))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _test()

@@ -34,6 +34,7 @@ import sys
 try:
     from typing import Optional, Union
     import io
+
     io  # pyflakes
     Optional  # pyflakes
     Union  # pyflakes
@@ -42,7 +43,7 @@ except ImportError:
 
 import apt_pkg
 
-__all__ = ['AcquireProgress', 'CdromProgress', 'InstallProgress', 'OpProgress']
+__all__ = ["AcquireProgress", "CdromProgress", "InstallProgress", "OpProgress"]
 
 
 class AcquireProgress(object):
@@ -52,8 +53,7 @@ class AcquireProgress(object):
     methods to get something useful.
     """
 
-    current_bytes = current_cps = fetched_bytes = last_bytes = total_bytes \
-                  = 0.0
+    current_bytes = current_cps = fetched_bytes = last_bytes = total_bytes = 0.0
     current_items = elapsed_time = total_items = 0
 
     def done(self, item):
@@ -167,7 +167,9 @@ class InstallProgress(object):
         (self.statusfd, self.writefd) = os.pipe()
         # These will leak fds, but fixing this safely requires API changes.
         self.write_stream = os.fdopen(self.writefd, "w")  # type: io.TextIOBase
-        self.status_stream = os.fdopen(self.statusfd, "r")  # type: io.TextIOBase # nopep8
+        self.status_stream = os.fdopen(
+            self.statusfd, "r"
+        )  # type: io.TextIOBase # nopep8
         fcntl.fcntl(self.statusfd, fcntl.F_SETFL, os.O_NONBLOCK)
 
     def start_update(self):
@@ -224,11 +226,21 @@ class InstallProgress(object):
             # and the execution continues in the
             # parent code leading to very confusing bugs
             try:
-                os._exit(obj.do_install(self.write_stream.fileno()))  # type: ignore # nopep8
+                os._exit(
+                    obj.do_install(self.write_stream.fileno())
+                )  # type: ignore # nopep8
             except AttributeError:
-                os._exit(os.spawnlp(os.P_WAIT, "dpkg", "dpkg", "--status-fd",   # type: ignore # nopep8
-                                    str(self.write_stream.fileno()), "-i",
-                                    obj))
+                os._exit(
+                    os.spawnlp(
+                        os.P_WAIT,
+                        "dpkg",
+                        "dpkg",
+                        "--status-fd",  # type: ignore # nopep8
+                        str(self.write_stream.fileno()),
+                        "-i",
+                        obj,
+                    )
+                )
             except Exception as e:
                 sys.stderr.write("%s\n" % e)
                 os._exit(apt_pkg.PackageManager.RESULT_FAILED)
@@ -255,18 +267,18 @@ class InstallProgress(object):
 
         pkgname = status = status_str = percent = base = ""
 
-        if line.startswith('pm'):
+        if line.startswith("pm"):
             try:
                 (status, pkgname, percent, status_str) = line.split(":", 3)
             except ValueError:
                 # silently ignore lines that can't be parsed
                 return
-        elif line.startswith('status'):
+        elif line.startswith("status"):
             try:
                 (base, pkgname, status, status_str) = line.split(":", 3)
             except ValueError:
                 (base, pkgname, status) = line.split(":", 2)
-        elif line.startswith('processing'):
+        elif line.startswith("processing"):
             (status, status_str, pkgname) = line.split(":", 2)
             self.processing(pkgname.strip(), status_str.strip())
 
@@ -275,10 +287,10 @@ class InstallProgress(object):
         status_str = status_str.strip()
         status = status.strip()
 
-        if status == 'pmerror' or status == 'error':
+        if status == "pmerror" or status == "error":
             self.error(pkgname, status_str)
-        elif status == 'conffile-prompt' or status == 'pmconffile':
-            match = re.match("\\s*\'(.*)\'\\s*\'(.*)\'.*", status_str)
+        elif status == "conffile-prompt" or status == "pmconffile":
+            match = re.match("\\s*'(.*)'\\s*'(.*)'.*", status_str)
             if match:
                 self.conffile(match.group(1), match.group(2))
         elif status == "pmstatus":
@@ -301,8 +313,7 @@ class InstallProgress(object):
         (pid, res) = (0, 0)
         while True:
             try:
-                select.select([self.status_stream], [], [],
-                              self.select_timeout)
+                select.select([self.status_stream], [], [], self.select_timeout)
             except select.error as error:
                 (errno_, _errstr) = error.args
                 if errno_ != errno.EINTR:
