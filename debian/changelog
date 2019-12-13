@@ -1,3 +1,18 @@
+python-apt (1.8.5) unstable; urgency=medium
+
+  * SECURITY UPDATE: python-apt did not check whether the repository was
+    trusted when downloading files in fetch_binary() and fetch_source()
+    functions (XXX)
+  * SECURITY UPDATE: Use all hashes instead of only MD5 when fetching files
+    in fetch_binary() and fetch_source(), ensure at least one of them is
+    trusted. (XXX)
+  * Add an allow_unauthenticated parameter to allow overriding the new security
+    checks, defaulting to APT::Get::AllowUnauthenticated option value.
+  * Small fixes to CI configuration to ensure testing works.
+  * Updated mirror lists
+
+ -- Julian Andres Klode <jak@debian.org>  Fri, 13 Dec 2019 14:05:26 +0100
+
 python-apt (1.8.4) unstable; urgency=medium
 
   * apt.Cache: Fix (un)locking in various places
