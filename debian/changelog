@@ -1,4 +1,4 @@
-python-apt (1.8.5) unstable; urgency=medium
+python-apt (1.8.5~deb10u1) buster; urgency=medium
 
   * SECURITY UPDATE: python-apt did not check whether the repository was
     trusted when downloading files in fetch_binary() and fetch_source()
